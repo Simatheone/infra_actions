@@ -63,9 +63,20 @@ jobs:
       with:
         host: ${{ secrets.CLOUD_HOST }}
         username: ${{ secrets.CLOUD_USER }}
-        key: ${{ secrets.CLOUD_SSH_KEY }}
+        key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.CLOUD_PASSPHRASE }}
         script: |
           sudo docker pull simatheone/infra-actions
           sudo docker stop $(sudo docker ps -a -q)
           sudo docker run --rm -d -p 5000:5000 simatheone/infra-actions
+
+  send_message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - name: send message to telegram
+    uses: appleboy/telegram-action@master
+    with:
+      to: ${{ secrets.TELEGRAM_TO }}
+      token: ${{ secrets.TELEGRAM_TOKEN }}
+      message: ${{ github.workflow }} успешно выполнено!
